@@ -4,10 +4,23 @@ module.exports = {
     // GET ALL BOOKS AND SORT BY TITLE AND LIMIT 0, 7 (default)
     getAllBooks: (page, limit) => {
         return new Promise((resolve, reject) => {
-            db.query(`SELECT books.id, books.title, books.description, books.author, \
-            available.availability, genres.genre, released FROM (books LEFT JOIN available \
-                ON books.available_id = available.id) LEFT JOIN genres ON books.genre_id = genres.id \
-                ORDER BY title LIMIT ${page}, ${limit} `, (err, result) =>{
+            db.query(`SELECT books.id, books.title, books.description, books.author, books.image, genres.book_genre, availability.available, books.released_date
+            FROM books
+            JOIN genres
+            ON genres.id = books.genre_id
+            JOIN availability
+            ON books.available_id = availability.id `, (err, result) =>{
+                if(!err) {
+                    resolve(result)
+                } else {
+                    reject(err)
+                }
+            })
+        })
+    },
+    getABook: (id) => {
+        return new Promise((resolve, reject) => {
+            db.query(`SELECT * FROM books WHERE id=?`, [id], (err, result) =>{
                 if(!err) {
                     resolve(result)
                 } else {
@@ -45,7 +58,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             db.query(`DELETE FROM books WHERE id = ?`, id, (err, result) => {
                 if(!err) {
-                    resolve(`Books with id ${id} has been deleted`)
+                    resolve(result)
                 } else {
                     reject(err)
                 }
@@ -55,7 +68,18 @@ module.exports = {
     // SHOW AVAILABLE BOOKS
     getAvailableBooks: () => {
         return new Promise((resolve, reject) => {
-            db.query(`SELECT * FROM books WHERE available_id = 2`, (err, result) => {
+            db.query(`SELECT * FROM books WHERE available_id = 1`, (err, result) => {
+                if(!err) {
+                    resolve(result)
+                } else {
+                    reject(err)
+                }
+            })
+        })
+    },
+    getNotAvailableBooks: () => {
+        return new Promise((resolve, reject) => {
+            db.query(`SELECT * FROM books WHERE available_id = 0`, (err, result) => {
                 if(!err) {
                     resolve(result)
                 } else {
@@ -67,7 +91,7 @@ module.exports = {
     // SORT BY ... & SEARCH
     searchBook: (title, page, limit) => {
         return new Promise((resolve, reject) => {
-            db.query(`SELECT * FROM books WHERE title LIKE ? ORDER BY released LIMIT ${page}, ${limit}`, ["%"+title+"%"], (err, result) => {
+            db.query(`SELECT * FROM books WHERE title LIKE ? ORDER BY released_date LIMIT ${page}, ${limit}`, ["%"+title+"%"], (err, result) => {
                 if(!err) {
                     resolve(result)
                 } else {
@@ -77,16 +101,20 @@ module.exports = {
         })
     },
     // BORROW BOOK
-    borrowBook: (id, available_id) => {
+    borrowBook: (id) => {
         return new Promise((resolve,  reject) => {
-            db.query(`SELECT * FROM books WHERE id = ? && available_id = 2`, id, (err, result) => {
+            db.query(`SELECT * FROM books WHERE id = ? && available_id = 1`, id, (err, result) => {
                 if(!err) {
                     if(result != '') {
-                        db.query(`UPDATE books SET available_id = 1 WHERE id = ?`, id, (err, result) => {
+                        db.query(`UPDATE books SET available_id = 0 WHERE id = ?`, id, (err, result) => {
                             if(!err) {
                                 resolve(result) // respons tdk standar
                             } else {
-                                res.send(`Sorry, book you are looking for unvailable this time`)
+                                res.json({
+                                    status: 201,
+                                    message: 'Sorry, book you are looking for unvailable this time',
+                                    data: id
+                                })
                             }
                         })
                     }
@@ -99,14 +127,18 @@ module.exports = {
     // RETURN BOOK
     returnBook: (id, available_id) => {
         return new Promise((resolve, reject) => {
-            db.query(`SELECT * FROM books WHERE id = ? && available_id = 1`, id, (err, result) => {
+            db.query(`SELECT * FROM books WHERE id = ? && available_id = 0`, id, (err, result) => {
                 if(!err) {
                     if(result != '') {
-                        db.query(`UPDATE books SET available_id = 2 WHERE id = ?`, id, (err, result) => {
+                        db.query(`UPDATE books SET available_id = 1 WHERE id = ?`, id, (err, result) => {
                             if(!err) {
                                 resolve(result) // respons tdk standar
                             } else {
-                                res.send(`Sorry, book was returned before.`)
+                                res.json({
+                                    status: 201,
+                                    message: 'Sorry, book was returned before.',
+                                    data: id
+                                })
                             }
                         })
                     }
@@ -119,7 +151,7 @@ module.exports = {
     // SHOW ALL GENRES
     getAllGenres: () => {
         return new Promise((resolve, reject) => {
-            db.query(`SELECT * FROM genres ORDER BY genre ASC`, (err, result) => {
+            db.query(`SELECT * FROM genres ORDER BY book_genre ASC`, (err, result) => {
                 if(!err) {
                     resolve(result)
                 } else {
@@ -128,9 +160,9 @@ module.exports = {
             })
         })
     },
-    insertGenre: (genre) =>{
+    insertGenre: (book_genre) =>{
         return new Promise((resolve, reject) => {
-            db.query(`INSERT genres SET ?`, genre, (err, result) => {
+            db.query(`INSERT genres SET ?`, book_genre, (err, result) => {
                 if(!err) {
                     resolve(result)
                 } else {
@@ -139,9 +171,9 @@ module.exports = {
             })
         })
     },
-    updateGenre: (id, genre) => {
+    updateGenre: (id, book_genre) => {
         return new Promise((resolve, reject) => {
-            db.query(`UPDATE genres SET ? WHERE id = ?`, [genre, id], (err, result) => {
+            db.query(`UPDATE genres SET ? WHERE id = ?`, [book_genre, id], (err, result) => {
                 if(!err) {
                     resolve(result)
                 } else{
