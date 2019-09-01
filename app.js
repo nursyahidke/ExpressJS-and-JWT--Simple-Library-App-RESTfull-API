@@ -8,7 +8,7 @@ const loger = require('morgan')
 const authRoute = require('./src/routes/auth')
 const app = express()
 
-const PORT = process.env.PORT || 3030
+const PORT = process.env.PORT || 3306
 
 app.listen(PORT, () => { console.log('Server running on PORT ' + PORT) })
 
