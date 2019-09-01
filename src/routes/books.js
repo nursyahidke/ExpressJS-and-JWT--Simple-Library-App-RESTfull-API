@@ -7,11 +7,11 @@ const booksController = require('../controller/books')
 
 Route
     // RESTful BOOK
-    .get('/', booksController.getBooks)
-    .get('/id', booksController.getABook)
-    .post('/',  booksController.insertBook)
-    .put('/',  booksController.updateBook)
-    .delete('/',  booksController.deleteBook)
+    .get('/books', booksController.getBooks)
+    .get('/books/id', booksController.getABook)
+    .post('/books',  booksController.insertBook)
+    .put('/books',  booksController.updateBook)
+    .delete('/books',  booksController.deleteBook)
     .get('/available', booksController.getAvailableBooks)
     .get('/unavailable', booksController.getNotAvailableBooks)
     .get('/search', booksController.searchBook)

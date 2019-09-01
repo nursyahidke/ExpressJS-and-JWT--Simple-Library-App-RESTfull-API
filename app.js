@@ -21,3 +21,4 @@ app.use(bodyParser.urlencoded({extended: false}))
 app.use('/auth', authRoute)
 // Route for books API
 app.use('/', booksRoute)
+app.get('/', (req, res) => res.send('Welcome'))
