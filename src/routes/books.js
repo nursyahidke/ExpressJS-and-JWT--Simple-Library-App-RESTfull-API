@@ -9,7 +9,7 @@ Route
     // RESTful BOOK
     .get('/books', booksController.getBooks)
     .get('/books/id', booksController.getABook)
-    .post('/books',  booksController.insertBook)
+    .post('/books?id',  booksController.insertBook)
     .put('/books',  booksController.updateBook)
     .delete('/books',  booksController.deleteBook)
     .get('/available', booksController.getAvailableBooks)

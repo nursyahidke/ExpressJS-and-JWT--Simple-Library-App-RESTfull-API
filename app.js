@@ -20,5 +20,5 @@ app.use(bodyParser.urlencoded({extended: false}))
 // Route to JWT authorization & validation
 app.use('/auth', authRoute)
 // Route for books API
-app.use('/', booksRoute)
+app.use('/api', booksRoute)
 app.get('/', (req, res) => res.send('Welcome'))
